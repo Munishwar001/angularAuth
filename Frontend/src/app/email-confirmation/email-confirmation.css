@@ -1,0 +1,101 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #c37c66;
+  padding: 20px;
+}
+
+.card {
+  background: #fff;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 30px;
+}
+
+.left {
+  flex: 1;
+}
+
+h1 {
+  font-size: 32px;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+p.lead {
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.input {
+  margin-bottom: 15px;
+}
+
+.input input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+.validation small {
+  color: #b00020;
+}
+
+.btn {
+  background: #9e8680;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 12px 24px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background: #7a665f;
+}
+
+.success {
+  background: #eaf7ef;
+  color: #1a6a3a;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.error {
+  background: #ffe6e6;
+  color: #b00020;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+}
+
+.small {
+  margin-top: 15px;
+  font-size: 13px;
+  color: #666;
+}
+
+.link {
+  color: #9e8680;
+  font-weight: bold;
+}
+
+.right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

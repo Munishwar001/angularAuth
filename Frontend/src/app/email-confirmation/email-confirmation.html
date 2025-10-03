@@ -1,0 +1,38 @@
+<div class="page">
+  <div class="card">
+    <!-- Left Section -->
+    <div class="left">
+      <h1>Forgot your password?</h1>
+      <p class="lead">Enter your registered email and we’ll send you a reset link.</p>
+
+      <!-- Success & Error Messages -->
+      <div *ngIf="successMsg" class="success">{{ successMsg }}</div>
+      <div *ngIf="errorMsg" class="error">{{ errorMsg }}</div>
+
+      <form [formGroup]="forgotForm" (ngSubmit)="onSubmit()">
+        <!-- <form> -->
+        <label for="email">Email Address</label>
+        <div class="input">
+          <input type="email" id="email" formControlName="email" placeholder="you@example.com" />
+        </div>
+        <!-- <div class="validation" *ngIf="email?.invalid && (email?.touched || email?.dirty)"> -->
+          <!-- <small *ngIf="email?.errors?.['required']">Email is required.</small> -->
+          <!-- <small *ngIf="email?.errors?.['email']">Invalid email format.</small> -->
+        <!-- </div> -->
+
+        <!-- <button class="btn" type="submit" [disabled]="loading"> -->
+        <button class="btn" type="submit" >
+            Sending 
+          <!-- {{ loading ? 'Sending...' : 'Send Reset Link' }} -->
+        </button>
+      </form>
+
+      <p class="small">Back to <a routerLink="/login" class="link">Login</a></p>
+    </div>
+
+    <!-- Right Section: Illustration -->
+    <div class="right">
+      <!-- <ng-lottie [options]="options"></ng-lottie> -->
+    </div>
+  </div>
+</div>

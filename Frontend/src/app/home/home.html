@@ -1,0 +1,43 @@
+<nav class="navbar navbar-expand-lg custom-navbar">
+  <div class="container-fluid">
+    <a class="navbar-brand" routerLink="/">MyApp</a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+      aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+         <a class="nav-link" routerLink="profile">Profile</a>
+        </li>
+        <li class="nav-item">
+          <button (click)="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> logout</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="dashboard-container">
+  <!-- Admin Section -->
+  <div *ngIf="isAdmin()" class="card-box">
+    <h2 class="section-title">Admin Panel</h2>
+    <button class="theme-btn" (click)="adminData()">Admin Settings</button>
+    <button class="theme-btn">Manage Users</button>
+  </div>
+
+  <!-- User Section -->
+  <div *ngIf="isUser()" class="card-box">
+    <h2 class="section-title">Welcome User</h2>
+    <button class="theme-btn">View Profile</button>
+  </div>
+
+  <!-- Common Section -->
+  <div class="card-box">
+    <p class="section-text">Welcome to the dashboard, everyone can see this.</p>
+  </div>
+</div>
+
+<router-outlet></router-outlet>

@@ -1,0 +1,61 @@
+
+<div class="login-wrapper">
+  <div class="login-card">
+    <!-- Left section: Signup form -->
+    <div class="section1">
+      <h2>Sign Up</h2>
+      <p class="subtitle">Create your account and unlock your potential.</p>
+
+      <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+        <div class="input-group">
+          <input type="text" placeholder="Full Name" formControlName="fullName" />
+          <div class="error" *ngIf="signupForm.get('fullName')?.touched && signupForm.get('fullName')?.invalid">
+            Full Name is required
+          </div>
+        </div>
+        <div class="input-group">
+          <input type="email" placeholder="Email" formControlName="email"/>
+          <div class="error" *ngIf="signupForm.get('email')?.touched && signupForm.get('email')?.invalid">
+            <div *ngIf="signupForm.get('email')?.errors?.['required']">Email is required</div>
+            <div *ngIf="signupForm.get('email')?.errors?.['email']">Enter a valid email</div>
+          </div>
+        </div>
+        <div class="input-group">
+          <input type="password" placeholder="Password" formControlName="password"/>
+          <div class="error" *ngIf="signupForm.get('password')?.touched && signupForm.get('password')?.invalid">
+            <div *ngIf="signupForm.get('password')?.errors?.['required']">Password is required</div>
+            <div *ngIf="signupForm.get('password')?.errors?.['minlength']">Password must be at least 6 characters</div>
+          </div>
+        </div>
+        <div class="input-group">
+          <input type="password" placeholder="Confirm Password" formControlName="confirmPassword"/>
+          <div class="error" *ngIf="signupForm.get('confirmPassword')?.touched && signupForm.get('confirmPassword')?.invalid">
+            Confirm Password is required
+          </div>
+          <div class="error" *ngIf="signupForm.errors?.['passwordMismatch'] && signupForm.get('confirmPassword')?.touched">
+            Passwords do not match
+          </div>
+        </div>
+
+        <button type="submit" class="btn"  [disabled]="signupForm.invalid">Sign Up</button>
+      </form>
+       
+      <p class="toggle-link">
+        Already have an account? <a [routerLink]="['/login']">Sign In</a>
+      </p>
+
+      <div class="divider">Or continue with</div>
+
+      <div class="social-login">
+          <button class="social-btn google"><i class="fa-brands fa-google"></i></button>
+        <button class="social-btn apple"><i class="fas fa-envelope"></i></button>
+        <button class="social-btn facebook"><i class="fa-brands fa-facebook-f"></i></button>
+      </div>
+    </div>
+
+    <!-- Right section: Lottie animation -->
+    <div class="section2">
+      <ng-lottie [options]="options" width="100%" height="100%"></ng-lottie>
+    </div>
+  </div>
+</div>

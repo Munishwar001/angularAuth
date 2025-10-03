@@ -1,0 +1,94 @@
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #c37c66; /* same as login page */
+  padding: 20px;
+}
+
+.card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  max-width: 1000px;
+  width: 100%;
+  gap: 40px;
+}
+
+.content {
+  flex: 1;
+}
+
+h1 {
+  font-size: 100px;
+  margin: 0;
+  color: #c37c66;
+  font-weight: bold;
+}
+
+h2 {
+  margin-top: 10px;
+  font-size: 32px;
+  font-weight: 600;
+  color: #333;
+}
+
+p {
+  margin: 20px 0;
+  font-size: 18px;
+  color: #555;
+}
+
+.btn {
+  padding: 12px 24px;
+  background-color: #9e8680;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  background-color: #7a665f;
+}
+
+.illustration {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.illustration ng-lottie {
+  width: 100%;
+  max-width: 350px;
+  height: auto;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .card {
+    flex-direction: column;
+    text-align: center;
+    gap: 20px;
+  }
+
+  h1 {
+    font-size: 70px;
+  }
+
+  h2 {
+    font-size: 24px;
+  }
+
+  .illustration ng-lottie {
+    max-width: 250px;
+  }
+}
