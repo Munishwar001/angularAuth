@@ -9,9 +9,9 @@ namespace Backend.Model.UserModel
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int id {  get; set; }
 
-        [Required]
-        [MaxLength(100)]
-        public string fullName { get; set; }
+        //[Required]
+        //[MaxLength(100)]
+        //public string fullName { get; set; }
 
         [Required]
         [MaxLength(100)]

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { AnimationOptions, LottieComponent } from 'ngx-lottie'
 import { Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule } from '@angular/forms';
-import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
+import { FormGroup, FormControl, Validators, AbstractControl ,ValidationErrors } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AuthApi } from '../service/auth/auth-api';
 import { ToastrService } from 'ngx-toastr';
@@ -27,7 +27,7 @@ export class Signup {
     this.signupForm = new FormGroup({
       fullName: new FormControl('', [Validators.required]),
       email: new FormControl('', [Validators.required, Validators.email]),
-      password: new FormControl('', [Validators.required, Validators.minLength(6)]),
+      password: new FormControl('', [Validators.required, this.identityPasswordValidator]),
       confirmPassword: new FormControl('', [Validators.required, Validators.minLength(6)]),
     },
       { validators: this.passwordMatchValidator })
@@ -48,6 +48,31 @@ export class Signup {
     return password === confirm ? null : { passwordMismatch: true };
   }
 
+
+ identityPasswordValidator(control: AbstractControl): ValidationErrors | null {
+    const value: string = control.value || '';
+
+    const hasUpperCase = /[A-Z]/.test(value);
+    const hasLowerCase = /[a-z]/.test(value);
+    const hasNumber = /[0-9]/.test(value);
+    const hasNonAlphaNum = /[^a-zA-Z0-9]/.test(value);
+    const minLength = value.length >= 6;
+
+    const valid = hasUpperCase && hasLowerCase && hasNumber && hasNonAlphaNum && minLength;
+
+    if (!valid) {
+      return {
+        identityPassword: {
+          hasUpperCase,
+          hasLowerCase,
+          hasNumber,
+          hasNonAlphaNum,
+          minLength
+        }
+      };
+    }
+    return null;
+  }
 
   onSubmit() {
     if (this.signupForm.valid) {

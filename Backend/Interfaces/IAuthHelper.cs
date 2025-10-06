@@ -6,10 +6,10 @@ namespace Backend.Interfaces
 {
     public interface IAuthHelper
     {
-        Users emailExist(string email);
+        //Users emailExist(string email);
 
         bool signUpHelper(SignUpDto data);
 
-        AuthReturn loginHelper(LoginDto data);
+        //AuthReturn loginHelper(LoginDto data);
     }
 }

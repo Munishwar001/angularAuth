@@ -1,12 +1,15 @@
 using Backend.Data;
 using Backend.Interfaces;
+using Backend.Model.Email;
+using Backend.Model.UserModel;
 using Backend.RepoHelper;
+using Backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,17 +28,23 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddDbContext<AppDBContext>(options => 
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+     
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddTransient<IAuthHelper , AuthHelper>();
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<AppDBContext>();
+
+builder.Services.AddTransient<EmailService>();
+builder.Services.AddTransient<AuthHelper>();
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<AppDBContext>()
+    .AddDefaultTokenProviders();
+
 
 builder.Services.AddAuthentication(options =>
 {
@@ -76,5 +85,6 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
 
 app.Run();

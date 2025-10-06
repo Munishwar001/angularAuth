@@ -57,5 +57,8 @@ export class AuthApi {
   forgotPassword(data: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/Auth/forgot-password`, data);
   }
-
+  
+  resetPassword(data:any):Observable<any> {
+    return this.http.post(`${this.baseUrl}/Auth/resetPassword`, data);
+  }
 }

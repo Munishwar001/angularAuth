@@ -5,10 +5,9 @@ using Backend.Model.UserModel;
 
 namespace Backend.Data
 {
-    public class AppDBContext: IdentityDbContext<IdentityUser>
-    { 
+    public class AppDBContext : IdentityDbContext<ApplicationUser>
+    {
         public AppDBContext(DbContextOptions<AppDBContext> options) : base(options) { }
 
-        public DbSet<Users> Users { get; set; }
     }
 }

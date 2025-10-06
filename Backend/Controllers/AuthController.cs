@@ -1,5 +1,4 @@
-﻿using Backend.Helper;
-using Backend.Interfaces;
+﻿using Backend.Interfaces;
 using Backend.Model.AuthModel;
 using Backend.Model.ReturnModels;
 using Backend.Model.UserModel;
@@ -8,8 +7,10 @@ using Backend.RepoHelper;
 //using BCrypt.Net;
 using Dapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using System.Threading.Tasks;
 
 
 namespace Backend.Controllers
@@ -18,39 +19,33 @@ namespace Backend.Controllers
     [Route("api/[controller]")]
     public class AuthController : Controller
     {
-        private IAuthHelper _authHelper;
-        public AuthController(IAuthHelper authHelper)
+        private AuthHelper _authHelper;
+        public AuthController(AuthHelper authHelper)
         { 
             _authHelper = authHelper;
         }
 
         [HttpPost("signup")]
-        public IActionResult Signup(SignUpDto data)
+        public async Task<IActionResult> Signup(SignUpDto data)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(data.fullName))
+                if (string.IsNullOrWhiteSpace(data.FullName))
                     return BadRequest(new { success = false, message = "Full Name cannot be empty" });
 
-                if (string.IsNullOrWhiteSpace(data.email))
-                    return BadRequest(new { success = false, message = "Email cannot be empty" });
+                if (string.IsNullOrWhiteSpace(data.Email))
+                return BadRequest(new { success = false, message = "Email cannot be empty" });
 
-                if (string.IsNullOrWhiteSpace(data.password) || string.IsNullOrWhiteSpace(data.confirmPassword))
+                if (string.IsNullOrWhiteSpace(data.Password))
                     return BadRequest(new { success = false, message = "Password cannot be empty" });
                 
-                if(!data.password.Equals(data.confirmPassword))
+                if(!data.Password.Equals(data.ConfirmPassword))
                     return BadRequest(new { success = false, message = "Password and ConfirmPassword are not same" });
 
-                 bool result = _authHelper.signUpHelper(data);
+                var result = await _authHelper.SignUpHelperAsync(data);
 
-                if (result)
-                {
-                    return Ok(new { success = true, message = "Signup successful!" });
-                }
-                else
-                {
-                    return BadRequest(new { success = false, message = "Signup failed. Email may already exist." });
-                }
+                return Ok(new { success = result.success, message = result.message });
+
             }
             catch (Exception ex)
             {
@@ -59,17 +54,37 @@ namespace Backend.Controllers
         }
 
         [HttpPost("login")]
-        public IActionResult Login(LoginDto data)
+        public async Task<IActionResult> Login(LoginDto data)
         {
             try
             {
-                AuthReturn result = _authHelper.loginHelper(data);
+                AuthReturn result = await  _authHelper.loginHelperAsync(data);
                 if (result.success)
                 {
                     return Ok(result);
                 }
-                    
+
                 return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> Forgotpasword([FromBody] ForgotPaswordDto data)
+        {
+            try
+            {
+
+                var result =  await _authHelper.Forgotpassword(data);
+                if (result.success)
+                {
+                return Ok(new {success = result.success , message = result.message});
+                }
+                return BadRequest(new { success = false, message = result.message });
+
             }
             catch (Exception ex)
             {
@@ -77,7 +92,7 @@ namespace Backend.Controllers
             }
         }
 
-         [Authorize]
+        [Authorize]
         [HttpGet("validate-token")]
         public IActionResult isLogin()
         {
@@ -90,5 +105,19 @@ namespace Backend.Controllers
                 return BadRequest(new { success = false, error = ex.Message });
             }
         }
+
+        [HttpPost("resetPassword")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+        {     
+
+            var result = await _authHelper.ResetPasswordHelper(dto);
+
+            if (result.success)
+            {
+                 return Ok(new { success = true , message = result.message });
+            }
+            return BadRequest(new { success = false, message = result.message });
+        }
+
     }
 }

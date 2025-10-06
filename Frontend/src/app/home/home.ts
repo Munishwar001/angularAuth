@@ -23,11 +23,11 @@ export class Home {
   }
   
    isAdmin(): boolean {
-    return this.role === 'admin';
+    return this.role?.toLowerCase() === 'admin';
   }
 
   isUser(): boolean {
-    return this.role === 'user';
+    return this.role?.toLowerCase() === 'user';
   }
   
   adminData(){

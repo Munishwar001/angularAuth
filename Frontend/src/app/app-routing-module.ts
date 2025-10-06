@@ -7,6 +7,7 @@ import {NotFound} from './not-found/not-found'
 import {guardGuard} from './service/guards/guard-guard'
 import { Profile } from './home/profile/profile';
 import {EmailConfirmation} from './email-confirmation/email-confirmation';
+import { ResetPasswordComponent } from './reset-password/reset-password';
 
  export const routes: Routes = [
   {path:"" , component:Home , canActivate :[guardGuard],
@@ -15,8 +16,9 @@ import {EmailConfirmation} from './email-confirmation/email-confirmation';
     ]
   },
   {path:"login" , component:Login},
-  {path:"emailConfirm" , component:EmailConfirmation},
   {path:"signup" , component:Signup},
+  {path:"emailConfirm" , component:EmailConfirmation},
+   {path:"resetPassword" , component:ResetPasswordComponent},
   {path:"**" , component:NotFound}
 ];
 

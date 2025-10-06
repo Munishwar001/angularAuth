@@ -16,10 +16,10 @@ export class EmailConfirmation {
   errorMsg: string = '';
   loading = false;
 
-  constructor(private fb: FormBuilder , private authService :AuthApi) {
-    this.forgotForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]]
-    });
+  constructor(  private authService :AuthApi) {
+    this.forgotForm = new FormGroup({
+       email : new FormControl('',[Validators.required , Validators.email])
+    })
   }
 
   get email() {
@@ -39,6 +39,9 @@ export class EmailConfirmation {
       next: (res) => {
         this.loading = false;
         this.successMsg = res.message || 'Reset link sent! Please check your email.';
+        if(res.success){
+           alert("Email Sended please check your email ");
+        }
       },
       error: (err) => {
         this.loading = false;

@@ -1,6 +1,22 @@
 [
   {
     "ContainingType": "Backend.Controllers.AuthController",
+    "Method": "Forgotpasword",
+    "RelativePath": "api/Auth/forgot-password",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "data",
+        "Type": "Backend.Model.AuthModel.ForgotPaswordDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Backend.Controllers.AuthController",
     "Method": "Login",
     "RelativePath": "api/Auth/login",
     "HttpMethod": "POST",
@@ -10,6 +26,22 @@
       {
         "Name": "data",
         "Type": "Backend.Model.AuthModel.LoginDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Backend.Controllers.AuthController",
+    "Method": "ResetPassword",
+    "RelativePath": "api/Auth/resetPassword",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "Backend.Model.AuthModel.ResetPasswordDto",
         "IsRequired": true
       }
     ],

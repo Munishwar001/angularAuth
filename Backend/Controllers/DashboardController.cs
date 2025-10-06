@@ -7,7 +7,7 @@ namespace Backend.Controllers
     [Route("api/[controller]")]
     public class DashboardController : Controller
     {
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "Admin")]
         [HttpGet("admin-data")]
         public IActionResult GetAdminData()
         {

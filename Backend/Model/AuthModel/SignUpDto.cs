@@ -1,13 +1,12 @@
 ﻿namespace Backend.Model.AuthModel
 {
     public class SignUpDto
-    { 
-        public string fullName { get; set; }
+    {     
+        public string FullName { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
 
-        public string email { get; set; }
-
-        public string password {  get; set; }
-
-        public string confirmPassword { get; set; }
+        public string ConfirmPassword { get; set; } = string.Empty;
+        public string Role { get; set; } = "User";
     }
 }

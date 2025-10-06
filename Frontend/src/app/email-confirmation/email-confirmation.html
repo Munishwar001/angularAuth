@@ -15,15 +15,13 @@
         <div class="input">
           <input type="email" id="email" formControlName="email" placeholder="you@example.com" />
         </div>
-        <!-- <div class="validation" *ngIf="email?.invalid && (email?.touched || email?.dirty)"> -->
-          <!-- <small *ngIf="email?.errors?.['required']">Email is required.</small> -->
-          <!-- <small *ngIf="email?.errors?.['email']">Invalid email format.</small> -->
-        <!-- </div> -->
+        <div class="validation" *ngIf="email?.invalid && (email?.touched || email?.dirty)">
+          <small *ngIf="email?.errors?.['required']">Email is required.</small>
+          <small *ngIf="email?.errors?.['email']">Invalid email format.</small>
+        </div>
 
-        <!-- <button class="btn" type="submit" [disabled]="loading"> -->
-        <button class="btn" type="submit" >
-            Sending 
-          <!-- {{ loading ? 'Sending...' : 'Send Reset Link' }} -->
+        <button class="btn" type="submit" [disabled]="loading">
+          {{ loading ? 'Sending...' : 'Send Reset Link' }}
         </button>
       </form>
 
