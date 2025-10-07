@@ -42,10 +42,10 @@ export class Login {
     if (this.loginForm.valid) {
       console.log(this.loginForm.value);
       this.authService.login(this.loginForm.value).subscribe({
-        next: (res) => {
+        next: (res:any) => {
           console.log(res);
           if (res.success) {
-            this.authService.saveToken(res.token);
+            this.authService.saveToken(res.token ,res.refreshToken);
             this.showSuccess(res.message);
             this.router.navigate(['/']);
           } else {

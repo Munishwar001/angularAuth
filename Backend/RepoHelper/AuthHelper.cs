@@ -11,6 +11,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using System.Web.Helpers;
 using System.Web.Mvc;
@@ -114,7 +115,12 @@ namespace Backend.RepoHelper
                 var token = GenerateJwtToken(user.Email, roles.FirstOrDefault() ?? "User");
                 Console.WriteLine(roles);
 
-                return new AuthReturn { success = true, message = "login successfully" , token = token};
+                var refreshToken = GenerateRefreshToken();
+                user.RefreshToken = refreshToken;
+                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+                await _userManager.UpdateAsync(user);
+
+                return new AuthReturn { success = true, message = "login successfully" , token = token , refreshToken = refreshToken};
             }
             catch (Exception ex)
             {
@@ -146,6 +152,16 @@ namespace Backend.RepoHelper
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        private string GenerateRefreshToken()
+        {
+            var randomBytes = new byte[64];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomBytes);
+            return Convert.ToBase64String(randomBytes);
+        }
+
+
 
         public async Task<AuthReturn> Forgotpassword(ForgotPaswordDto data)
         {
@@ -203,5 +219,72 @@ namespace Backend.RepoHelper
                 throw new Exception("Exception in  ResetPasword   Helper " + ex.Message);
             }
         }
+
+        public async Task<AuthReturn> RefreshToken(TokenModel tokenModel)
+        {
+            try
+            {
+                if (tokenModel is null)
+                    return new AuthReturn { success = false, message = "Unauthorized" };
+
+                var principal = GetPrincipalFromExpiredToken(tokenModel.AccessToken);
+                if (principal == null)
+                     return new AuthReturn { success = false, message = "Invalid access token" };
+
+                var email = principal.FindFirstValue(ClaimTypes.Email);
+                var user = await _userManager.FindByEmailAsync(email); ;
+
+                if (user == null ||
+                    user.RefreshToken != tokenModel.RefreshToken ||
+                    user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+                {
+                    return new AuthReturn { success = false, message = "Invalid refresh token" };
+                }
+                var roles = await _userManager.GetRolesAsync(user);
+                var newAccessToken = GenerateJwtToken(user.Email , roles.FirstOrDefault() ?? "User");
+                var newRefreshToken = GenerateRefreshToken();
+
+                user.RefreshToken = newRefreshToken;
+                await _userManager.UpdateAsync(user);
+
+                return new AuthReturn { success = true, message = "Token Refreshed"  , token = newAccessToken , refreshToken = newRefreshToken};
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Exception in  RefreshToken  Helper " + ex.Message);
+            }
+        }
+
+        private ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
+        {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"])),
+                ValidateLifetime = false
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            try
+            {
+                var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+                if (securityToken is JwtSecurityToken jwt &&
+                    jwt.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return principal;
+                }
+            }
+            catch
+            {
+                return null;
+            }
+
+            return null;
+        }
+
+
     }
 }

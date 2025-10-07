@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { AuthApi } from '../auth/auth-api';
 import { of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
+import { switchMap } from 'rxjs/operators';
 
 
 export const guardGuard: CanActivateFn = (route, state) => {
@@ -20,11 +21,20 @@ export const guardGuard: CanActivateFn = (route, state) => {
     map(() => true), 
     catchError(err => {
       if (err.status === 401) {
-        authService.logout();
-        router.navigate(['/login']);
-      }
-      return of(false);
-    })
-  );
+      return authService.refresh().pipe(
+        switchMap((tokens:any) => {
+          authService.saveToken(tokens.accessToken, tokens.refreshToken);
+          return of(true); 
+        }),
+        catchError(refreshErr => {
+          authService.logout();
+          router.navigate(['/login']);
+          return of(false);
+        })
+      );
+    }
+    return of(false);
+  })
+);
   
 };

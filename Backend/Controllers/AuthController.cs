@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 
@@ -118,6 +119,22 @@ namespace Backend.Controllers
             }
             return BadRequest(new { success = false, message = result.message });
         }
+
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh([FromBody]TokenModel tokenModel)
+        {   
+
+            var result =  await _authHelper.RefreshToken(tokenModel);
+
+            if (result.success)
+            {
+                return Ok(result);
+            }
+
+            return BadRequest(result);
+            
+        }
+
 
     }
 }

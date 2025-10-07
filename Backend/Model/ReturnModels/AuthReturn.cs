@@ -1,4 +1,6 @@
-﻿namespace Backend.Model.ReturnModels
+﻿using Backend.Model.AuthModel;
+
+namespace Backend.Model.ReturnModels
 {
     public class AuthReturn
     { 
@@ -6,6 +8,8 @@
 
         public string message { get; set; }
 
-        public string? token { get; set; }
+        public string token { get; set; }
+
+        public string refreshToken { get; set; }
     }
 }

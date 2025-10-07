@@ -33,6 +33,22 @@
   },
   {
     "ContainingType": "Backend.Controllers.AuthController",
+    "Method": "Refresh",
+    "RelativePath": "api/Auth/refresh",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "tokenModel",
+        "Type": "Backend.Model.AuthModel.TokenModel",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Backend.Controllers.AuthController",
     "Method": "ResetPassword",
     "RelativePath": "api/Auth/resetPassword",
     "HttpMethod": "POST",

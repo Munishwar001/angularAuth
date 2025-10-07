@@ -20,12 +20,15 @@ export class AuthApi {
   login(data: LoginRequest): Observable<ApiResponse> {
     return this.http.post<ApiResponse>(`${this.baseUrl}/Auth/login`, data);
   }
+  saveToken(token: string, refreshToken: string) {
+  if (!token || !refreshToken) return;
 
-  saveToken(token: string) {
-    const encodedToken = btoa(token);
-    // localStorage.setItem('jwt', token);
-    localStorage.setItem('access_token', encodedToken);
-  }
+  const encodedToken = btoa(token);
+  const encodedRefreshToken = btoa(refreshToken);
+
+  localStorage.setItem('access_token', encodedToken);
+  localStorage.setItem('access_refreshtoken', encodedRefreshToken);
+}
 
   getToken(): string | null {
     // return localStorage.getItem('jwt');
@@ -57,8 +60,28 @@ export class AuthApi {
   forgotPassword(data: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/Auth/forgot-password`, data);
   }
-  
-  resetPassword(data:any):Observable<any> {
+
+  resetPassword(data: any): Observable<any> {
     return this.http.post(`${this.baseUrl}/Auth/resetPassword`, data);
+  }
+
+  refreshToken() {
+    const encodedToken = localStorage.getItem('access_token');
+    const endodedRefreshToken = localStorage.getItem('access_refreshtoken');
+    if (!encodedToken || !endodedRefreshToken) return;
+    let token = atob(encodedToken);
+    let refreshToken = atob(endodedRefreshToken);
+    return {
+      accessToken: token,
+      refreshToken: refreshToken
+    };
+  }
+
+  refresh(){ 
+      const token = this.refreshToken();
+    return this.http.post(
+      '/api/Auth/Refresh',
+      { accessToken: token?.accessToken, refreshToken: token?.refreshToken }
+    );
   }
 }
