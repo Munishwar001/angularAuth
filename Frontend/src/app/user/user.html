@@ -1,0 +1,76 @@
+<div class="main-container">
+  <div class="page-header">
+    <h1>User Management</h1>
+    <p class="header-subtitle">
+      Manage and control user accounts easily from this panel.
+    </p>
+  </div>
+
+  <div class="table-container">
+    <p class="table-description">
+      Below is the list of all registered users. You can <strong>edit</strong> their details or <strong>delete</strong> them permanently.
+    </p>
+
+    <table class="user-table">
+      <thead>
+        <tr>
+          <th>User ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Manage</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let user of users">
+          <td>{{ user.id }}</td>
+          <td>{{ user.fullName }}</td>
+          <td>{{ user.email}}</td>
+          <td>
+            <button class="btn-edit" (click)="editUser(user)">Edit</button>
+            <button class="btn-delete" (click)="deleteUser(user.id)">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+
+<div class="modal-overlay" *ngIf="isModalOpen" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Edit User</h2>
+      <button class="close-btn" (click)="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form [formGroup]="editUserForm" (ngSubmit)="saveUser()">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" formControlName="fullName" class="form-control" />
+          <span class="error-message" *ngIf="hasError('fullName', 'required')">
+            Name is required.
+          </span>
+          <span class="error-message" *ngIf="hasError('fullName', 'minlength')">
+            Name must be at least 2 characters long.
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" formControlName="email" class="form-control" />
+          <span class="error-message" *ngIf="hasError('email', 'required')">
+            Email is required.
+          </span>
+          <span class="error-message" *ngIf="hasError('email', 'email')">
+            Please enter a valid email address.
+          </span>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="closeModal()">Cancel</button>
+          <button type="submit" class="btn-save">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

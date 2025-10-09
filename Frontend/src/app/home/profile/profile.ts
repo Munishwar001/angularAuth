@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { AuthApi } from '../../service/auth/auth-api';
 
 @Component({
   selector: 'app-profile',
@@ -7,5 +8,13 @@ import { Component } from '@angular/core';
   styleUrl: './profile.css'
 })
 export class Profile {
-
+   
+  constructor(private AuthService:AuthApi){
+    
+  }
+ 
+  ngOnInit(){
+       console.log(this.AuthService.getEmailJwt());
+       
+  }
 }

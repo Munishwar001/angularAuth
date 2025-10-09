@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Google.Apis.Auth;
 
 
 namespace Backend.Controllers
@@ -21,11 +22,13 @@ namespace Backend.Controllers
     public class AuthController : Controller
     {
         private AuthHelper _authHelper;
+
         public AuthController(AuthHelper authHelper)
         { 
             _authHelper = authHelper;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("signup")]
         public async Task<IActionResult> Signup(SignUpDto data)
         {
@@ -121,7 +124,7 @@ namespace Backend.Controllers
         }
 
         [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh([FromBody]TokenModel tokenModel)
+        public async Task<IActionResult> Refresh([FromBody] TokenModel tokenModel)
         {   
 
             var result =  await _authHelper.RefreshToken(tokenModel);
@@ -135,6 +138,14 @@ namespace Backend.Controllers
             
         }
 
-
+        [HttpPost("google-login")]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequestDto request)
+        {
+            
+             var result =  await _authHelper.GoogleLogin(request);
+           
+            return Ok(result);
+            
+        }
     }
 }

@@ -1,5 +1,6 @@
 using Backend.Data;
 using Backend.Interfaces;
+using Backend.Model.AuthModel;
 using Backend.Model.Email;
 using Backend.Model.UserModel;
 using Backend.RepoHelper;
@@ -36,10 +37,11 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-
+builder.Services.Configure<GoogleAuthSettings>(builder.Configuration.GetSection("GoogleAuth"));
 
 builder.Services.AddTransient<EmailService>();
 builder.Services.AddTransient<AuthHelper>();
+builder.Services.AddTransient<UserHelper>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDBContext>()
@@ -59,6 +61,7 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
+        ClockSkew = TimeSpan.Zero,
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(

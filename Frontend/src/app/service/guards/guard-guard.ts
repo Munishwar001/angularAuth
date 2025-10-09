@@ -23,7 +23,8 @@ export const guardGuard: CanActivateFn = (route, state) => {
       if (err.status === 401) {
       return authService.refresh().pipe(
         switchMap((tokens:any) => {
-          authService.saveToken(tokens.accessToken, tokens.refreshToken);
+          console.log("token data which is present ", tokens );
+          authService.saveToken(tokens.token, tokens.refreshToken);
           return of(true); 
         }),
         catchError(refreshErr => {

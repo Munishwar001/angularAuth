@@ -1,13 +1,14 @@
-﻿//using Backend.Helper;
-using Backend.Interfaces;
+﻿using Backend.Interfaces;
 using Backend.Model.AuthModel;
 using Backend.Model.ReturnModels;
 using Backend.Model.UserModel;
 using Backend.Services;
 using Dapper;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -15,7 +16,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web.Helpers;
 using System.Web.Mvc;
-
+using Microsoft.EntityFrameworkCore;
 
 namespace Backend.RepoHelper
 {
@@ -25,15 +26,17 @@ namespace Backend.RepoHelper
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         public readonly EmailService _emailService;
+        public readonly GoogleAuthSettings _googleSettings;
 
         private readonly IConfiguration _configuration;
-        public AuthHelper(IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, EmailService emailService)
+        public AuthHelper(IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, EmailService emailService, IOptions<GoogleAuthSettings> GoogleOptions)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection");
             _configuration = configuration;
             _userManager = userManager;
             _roleManager = roleManager;
             _emailService = emailService;
+            _googleSettings = GoogleOptions.Value;
         }
 
         public async Task<EmailExistDto?> EmailExistAsync(string email)
@@ -113,7 +116,7 @@ namespace Backend.RepoHelper
 
                 var roles = await _userManager.GetRolesAsync(user);
                 var token = GenerateJwtToken(user.Email, roles.FirstOrDefault() ?? "User");
-                Console.WriteLine(roles);
+                //Console.WriteLine(roles);
 
                 var refreshToken = GenerateRefreshToken();
                 user.RefreshToken = refreshToken;
@@ -146,7 +149,7 @@ namespace Backend.RepoHelper
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
                 claims : claims ,
-                expires: DateTime.Now.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpireMinutes"])),
+                expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpireMinutes"])),
                 signingCredentials: credentials
                 );
 
@@ -160,8 +163,6 @@ namespace Backend.RepoHelper
             rng.GetBytes(randomBytes);
             return Convert.ToBase64String(randomBytes);
         }
-
-
 
         public async Task<AuthReturn> Forgotpassword(ForgotPaswordDto data)
         {
@@ -232,7 +233,7 @@ namespace Backend.RepoHelper
                      return new AuthReturn { success = false, message = "Invalid access token" };
 
                 var email = principal.FindFirstValue(ClaimTypes.Email);
-                var user = await _userManager.FindByEmailAsync(email); ;
+                var user = await _userManager.FindByEmailAsync(email);
 
                 if (user == null ||
                     user.RefreshToken != tokenModel.RefreshToken ||
@@ -285,6 +286,59 @@ namespace Backend.RepoHelper
             return null;
         }
 
+        public async  Task<AuthReturn> GoogleLogin(GoogleLoginRequestDto request)
+        {
+            try
+            {
+                var settings = new GoogleJsonWebSignature.ValidationSettings()
+                {
+                    Audience = new[] { _googleSettings.ClientId }
+                };
 
+                var payload = await GoogleJsonWebSignature.ValidateAsync(request.IdToken, settings);
+
+                if (payload == null)
+                {
+                    return new AuthReturn{ success = false, message = "Invalid Google token" };
+                }
+
+                string email = payload.Email;
+                string name = payload.Name;
+                Console.WriteLine("The Email Which we get from the payload is => "+ email);
+                Console.WriteLine(" And the Name is => " + name);
+
+                var user = await _userManager.Users
+                 .Where(u => u.Email == email && !u.isDeleted)
+                 .FirstOrDefaultAsync();
+
+                if (user == null)
+                {
+                    return new AuthReturn { success = false, message = "Please Request the Admin to Admit you " };
+                }
+
+                string token = GenerateJwtToken(email, "User");
+                string refreshToken = GenerateRefreshToken();
+
+                user.RefreshToken = refreshToken;
+                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    return new AuthReturn { success = false, message = "Enable to Update the User" };
+                }
+                return new AuthReturn { success = true, message = "Token Refreshed", token = token , refreshToken = refreshToken };
+            }
+            catch (InvalidJwtException ex)
+            {
+                Console.WriteLine("Invalid token: " + ex.Message);
+                throw ;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error validating token: " + ex.Message);
+                throw;
+            }
+        }
     }
 }

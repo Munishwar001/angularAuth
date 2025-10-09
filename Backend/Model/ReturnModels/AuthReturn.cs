@@ -1,4 +1,5 @@
 ﻿using Backend.Model.AuthModel;
+using Backend.Model.UserModel;
 
 namespace Backend.Model.ReturnModels
 {
@@ -11,5 +12,7 @@ namespace Backend.Model.ReturnModels
         public string token { get; set; }
 
         public string refreshToken { get; set; }
+
+        public Users user { get; set; }
     }
 }

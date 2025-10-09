@@ -9,35 +9,32 @@
 
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav ms-auto">
+
         <li class="nav-item">
-         <a class="nav-link" routerLink="profile">Profile</a>
+          <a class="nav-link" routerLink="/">Home</a>
         </li>
+
+        <!-- Only for admin -->
+        <li class="nav-item" *ngIf="(role$ | async) === 'admin'">
+          <a class="nav-link" routerLink="signup">Regiter User</a>
+        </li>
+
+        <li class="nav-item" *ngIf="(role$ | async) === 'admin'">
+          <a class="nav-link" routerLink="user">Users</a>
+        </li>
+
+        <li class="nav-item profile-icon">
+          <a class="nav-link" routerLink="profile">
+            <i class="fa-regular fa-circle-user"></i>
+          </a>
+        </li>
+
         <li class="nav-item">
-          <button (click)="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> logout</button>
+          <button (click)="handleLogout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
         </li>
       </ul>
     </div>
   </div>
 </nav>
-
-<div class="dashboard-container">
-  <!-- Admin Section -->
-  <div *ngIf="isAdmin()" class="card-box">
-    <h2 class="section-title">Admin Panel</h2>
-    <button class="theme-btn" (click)="adminData()">Admin Settings</button>
-    <button class="theme-btn">Manage Users</button>
-  </div>
-
-  <!-- User Section -->
-  <div *ngIf="isUser()" class="card-box">
-    <h2 class="section-title">Welcome User</h2>
-    <button class="theme-btn">View Profile</button>
-  </div>
-
-  <!-- Common Section -->
-  <div class="card-box">
-    <p class="section-text">Welcome to the dashboard, everyone can see this.</p>
-  </div>
-</div>
 
 <router-outlet></router-outlet>

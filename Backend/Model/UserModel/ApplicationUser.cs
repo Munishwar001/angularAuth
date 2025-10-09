@@ -8,5 +8,9 @@ namespace Backend.Model.UserModel
 
         public string? RefreshToken { get; set; } = string.Empty;
         public DateTime? RefreshTokenExpiryTime { get; set; } 
+
+        public bool isDeleted { get; set; }
+
+        public DateTime DeletedAt { get; set; }
     }
 }

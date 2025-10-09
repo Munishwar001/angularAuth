@@ -1,0 +1,16 @@
+<div class="dashboard-container">
+  <div *ngIf="(role$ | async) === 'admin'" class="card-box">
+    <h2 class="section-title">Admin Panel</h2>
+    <button class="theme-btn">Admin Settings</button>
+    <button class="theme-btn">Manage Users</button>
+  </div>
+
+  <div *ngIf="(role$ | async) === 'user'" class="card-box">
+    <h2 class="section-title">Welcome User</h2>
+    <button class="theme-btn">View Profile</button>
+  </div>
+
+  <div class="card-box">
+    <p class="section-text">Welcome to the dashboard, everyone can see this.</p>
+  </div>
+</div>

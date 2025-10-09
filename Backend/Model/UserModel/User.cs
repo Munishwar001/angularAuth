@@ -5,23 +5,8 @@ namespace Backend.Model.UserModel
 {
     public class Users
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int id {  get; set; }
-
-        //[Required]
-        //[MaxLength(100)]
-        //public string fullName { get; set; }
-
-        [Required]
-        [MaxLength(100)]
-        [EmailAddress]
-        public string email { get; set; }
-
-        [Required] 
-        [MaxLength(255)]
-        public string password { get; set; }
-
-        public string roles { get; set; }
+        public string Id { get; set; }
+        public string FullName { get; set; }
+        public string Email { get; set; }
     }
 }

@@ -93,3 +93,36 @@
 .custom-navbar .nav-item button i {
   font-size: 16px;         
 }
+
+/* Profile Icon Styling */
+.custom-navbar .profile-icon .nav-link {
+  color: #fff !important;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  transition: all 0.3s ease;
+}
+
+.custom-navbar .profile-icon .nav-link:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffe6dc !important;
+  transform: scale(1.1);
+}
+
+.custom-navbar .profile-icon .nav-link i {
+  font-size: 20px;
+}
+
+.content-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 70px); /* subtract navbar height */
+  padding: 40px 0;
+  background-color: #f4f6f8;
+}
