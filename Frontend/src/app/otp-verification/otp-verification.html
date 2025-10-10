@@ -1,0 +1,30 @@
+<div class="otp-wrapper">
+  <div class="otp-card">
+    <h2>OTP Verification</h2>
+    <p>Please enter the 6-digit OTP sent to your email</p>
+
+    <form [formGroup]="otpForm" (ngSubmit)="submitOtp()">
+      <div class="input-group">
+        <input
+          type="text"
+          placeholder="Enter OTP"
+          formControlName="otp"
+          maxlength="6"
+        />
+        <div *ngIf="otp?.invalid && otp?.touched" class="error">
+          <small *ngIf="otp?.errors?.['required']">OTP is required.</small>
+          <small *ngIf="otp?.errors?.['pattern']">OTP must be 6 digits.</small>
+        </div>
+      </div>
+
+      <button type="submit" class="btn" [disabled]="isSubmitting || otpForm.invalid">
+        Verify OTP
+      </button>
+    </form>
+
+    <p class="resend">
+      Didn't receive OTP?
+      <a href="#" (click)="resendOtp()">Resend OTP</a>
+    </p>
+  </div>
+</div>

@@ -1,6 +1,16 @@
 [
   {
     "ContainingType": "Backend.Controllers.AuthController",
+    "Method": "EnableTwoFactor",
+    "RelativePath": "api/Auth/enable-2fa",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Backend.Controllers.AuthController",
     "Method": "Forgotpasword",
     "RelativePath": "api/Auth/forgot-password",
     "HttpMethod": "POST",
@@ -119,6 +129,22 @@
     "IsController": true,
     "Order": 0,
     "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Backend.Controllers.AuthController",
+    "Method": "VerifyOtp",
+    "RelativePath": "api/Auth/verify-otp",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Backend.Model.AuthModel.VerifyOtpRequestDto",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": []
   },
   {

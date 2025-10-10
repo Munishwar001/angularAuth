@@ -14,6 +14,9 @@
           <a class="nav-link" routerLink="/">Home</a>
         </li>
 
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/2FA">Two Factor Auth</a>
+        </li>
         <!-- Only for admin -->
         <li class="nav-item" *ngIf="(role$ | async) === 'admin'">
           <a class="nav-link" routerLink="signup">Regiter User</a>

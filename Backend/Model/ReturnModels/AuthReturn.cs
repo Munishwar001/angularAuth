@@ -14,5 +14,9 @@ namespace Backend.Model.ReturnModels
         public string refreshToken { get; set; }
 
         public Users user { get; set; }
+
+        public bool? isTwoFactorRequired { get; set; }
+
+        public string? email { get; set; }
     }
 }

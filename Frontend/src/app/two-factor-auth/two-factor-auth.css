@@ -1,0 +1,57 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.tfa-container {
+  background: #fff;
+  border-radius: 15px;
+  padding: 30px 40px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+  width: 350px;
+  text-align: center;
+  margin: 50px auto;
+}
+
+.tfa-container h1 {
+  color: #8b5d5d;
+  margin-bottom: 20px;
+}
+
+.tfa-container p {
+  color: #B6771D;
+  margin-bottom: 30px;
+}
+
+.tfa-container .confirmation {
+  background: #6e4747;
+  color: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+.tfa-container input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  text-align: center;
+  font-size: 16px;
+}
+
+.tfa-container button {
+  background: linear-gradient(135deg, #b56b4d, #d08f7a);
+  border: none;
+  color: #fff;
+  padding: 12px 25px;
+  font-size: 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.tfa-container button:hover {
+  opacity: 0.9;
+}

@@ -1,0 +1,25 @@
+<div class="tfa-container">
+  <h1>Two-Factor Authentication</h1>
+  <p>Do you want to enable Two-Factor Authentication?</p>
+
+  <!-- Add button to generate random code -->
+  <button (click)="generateCode()" *ngIf="!codeGenerated">Add</button>
+
+  <!-- Confirmation section -->
+  <div class="confirmation" *ngIf="codeGenerated">
+    Your code: {{ randomCode }} <br>
+    Enter the code sent to you:
+  </div>
+
+  <form [formGroup]="tfaForm" *ngIf="codeGenerated" (ngSubmit)="confirmTFA()">
+    <input type="text" placeholder="Enter code here" formControlName="enteredCode">
+    
+    <!-- Error messages -->
+    <div *ngIf="tfaForm.controls['enteredCode'].invalid && tfaForm.controls['enteredCode'].touched" style="color: red; margin-bottom: 10px;">
+      <small *ngIf="tfaForm.controls['enteredCode'].errors?.['required']">Code is required.</small>
+      <small *ngIf="tfaForm.controls['enteredCode'].errors?.['minlength'] || tfaForm.controls['enteredCode'].errors?.['maxlength']">Code must be 6 characters.</small>
+    </div>
+
+    <button type="submit" [disabled]="tfaForm.invalid">Confirm</button>
+  </form>
+</div>

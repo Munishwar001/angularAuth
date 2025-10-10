@@ -157,5 +157,29 @@ namespace Backend.Controllers
             return Ok(result);
 
         }
+
+        [HttpPut("enable-2fa")]
+        [Authorize]
+        public async Task<IActionResult> EnableTwoFactor()
+        {
+           
+            var result = await _authHelper.EnableTwoFator(User); 
+            if (result.success)
+                return Ok(result);
+            else
+                return BadRequest(result);
+        }
+
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpRequestDto request)
+        {
+            var result = await _authHelper.VerifyOtp(request , User);
+            if (result.success)
+            {
+                return Ok(result);
+            }
+            return BadRequest(result);
+        }
+
     }
 }

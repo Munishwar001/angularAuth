@@ -11,6 +11,8 @@ import { ResetPasswordComponent } from './reset-password/reset-password';
 import { authGuard } from './service/guards/auth-guard';
 import { User } from './user/user';  
 import { HomeComponent } from './home-component/home-component';
+import { TwoFactorAuth } from './two-factor-auth/two-factor-auth';
+import { OtpVerification } from './otp-verification/otp-verification';
  export const routes: Routes = [
   {path:"" , component:Home , canActivate :[guardGuard],
     children: [
@@ -18,10 +20,12 @@ import { HomeComponent } from './home-component/home-component';
       { path: 'profile', component: Profile },
       {path:"user" , component:User , data: { role: 'admin' } ,canActivate: [authGuard]},
       {path:"signup" , component:Signup , data: { role: 'admin' } ,canActivate: [authGuard]},
+      {path:"2FA" , component:TwoFactorAuth},
     ]
   },
   {path:"login" , component:Login},
   {path:"emailConfirm" , component:EmailConfirmation},
+  {path:"otp-validation" , component:OtpVerification},
    {path:"resetPassword" , component:ResetPasswordComponent},
   {path:"**" , component:NotFound}
 ];

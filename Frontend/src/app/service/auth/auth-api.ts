@@ -119,5 +119,16 @@ export class AuthApi {
   microsoftLogin(data: { idToken: string }) {
     return this.http.post(`${this.baseUrl}/Auth/microsoft-login`, data);
   }
+  
+   enableTwoFactor() {
+    return this.http.put(`${this.baseUrl}/Auth/enable-2fa`,null);
+  }
 
+  sendOtp(data: { idToken: string }): Observable<any> {
+    return this.http.post(`${this.baseUrl}/Auth/send-otp`, data);
+  }
+
+  verifyOtp(data: { otp: string; email: any }): Observable<any> {
+  return this.http.post<any>(`${this.baseUrl}/Auth/verify-otp`, data);
+}
 }

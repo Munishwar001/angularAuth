@@ -8,6 +8,7 @@ using Backend.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -29,7 +30,15 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddDbContext<AppDBContext>(options => 
         options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-     
+
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15); 
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+});
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -42,10 +51,14 @@ builder.Services.Configure<GoogleAuthSettings>(builder.Configuration.GetSection(
 builder.Services.AddTransient<EmailService>();
 builder.Services.AddTransient<AuthHelper>();
 builder.Services.AddTransient<UserHelper>();
+builder.Services.AddScoped<EncryptionHelper>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<AppDBContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.Configure<EncryptionSettings>(
+    builder.Configuration.GetSection("EncryptionSettings"));
 
 
 builder.Services.AddAuthentication(options =>

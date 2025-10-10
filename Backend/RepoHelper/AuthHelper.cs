@@ -6,9 +6,13 @@ using Backend.Services;
 using Dapper;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -16,9 +20,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Web.Helpers;
 using System.Web.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Protocols;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Backend.RepoHelper
 {
@@ -29,9 +31,9 @@ namespace Backend.RepoHelper
         private readonly RoleManager<IdentityRole> _roleManager;
         public readonly EmailService _emailService;
         public readonly GoogleAuthSettings _googleSettings;
-
+        public readonly EncryptionHelper _encryptionHelper;
         private readonly IConfiguration _configuration;
-        public AuthHelper(IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, EmailService emailService, IOptions<GoogleAuthSettings> GoogleOptions)
+        public AuthHelper(IConfiguration configuration, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, EmailService emailService, IOptions<GoogleAuthSettings> GoogleOptions , EncryptionHelper encryptionHelper)
         {
             _connectionString = configuration.GetConnectionString("DefaultConnection");
             _configuration = configuration;
@@ -39,6 +41,7 @@ namespace Backend.RepoHelper
             _roleManager = roleManager;
             _emailService = emailService;
             _googleSettings = GoogleOptions.Value;
+            _encryptionHelper = encryptionHelper;
         }
 
         public async Task<EmailExistDto?> EmailExistAsync(string email)
@@ -113,8 +116,33 @@ namespace Backend.RepoHelper
 
 
                 var passwordValid = await _userManager.CheckPasswordAsync(user, data.Password);
+
                 if (!passwordValid)
-                    return new AuthReturn { success = false, message = "Invalid password" };
+                {
+                    await _userManager.AccessFailedAsync(user); 
+
+                    if (await _userManager.IsLockedOutAsync(user))
+                    {
+                        return new AuthReturn { success = false, message = "Account locked. Try again later." };
+                    }
+
+                    return new AuthReturn { success = false, message = "Invalid credentials" };
+                }
+
+                await _userManager.ResetAccessFailedCountAsync(user);
+
+                if (user.TwoFactorEnabled)
+                {
+                    await sendOtp(user.Email);
+                     string encryEmail = _encryptionHelper.Encrypt(user.Email);
+                    return new AuthReturn
+                    {
+                        success = true,
+                        message = "2FA required",
+                        isTwoFactorRequired = true,
+                        email = encryEmail
+                    };
+                }
 
                 var roles = await _userManager.GetRolesAsync(user);
                 var token = GenerateJwtToken(user.Email, roles.FirstOrDefault() ?? "User");
@@ -318,6 +346,23 @@ namespace Backend.RepoHelper
                     return new AuthReturn { success = false, message = "Please Request the Admin to Admit you " };
                 }
 
+                if (user.TwoFactorEnabled)
+                {
+                    // Send OTP
+                    await sendOtp(user.Email);
+
+                    string encryEmail = _encryptionHelper.Encrypt(user.Email);
+
+                    return new AuthReturn
+                    {
+                        success = true,
+                        message = "2FA required",
+                        isTwoFactorRequired = true,
+                        email = encryEmail
+                    };
+                }
+
+
                 string token = GenerateJwtToken(email, "User");
                 string refreshToken = GenerateRefreshToken();
 
@@ -391,6 +436,22 @@ namespace Backend.RepoHelper
                     return new AuthReturn { success = false, message = "Account Not found Please Register" };
                 }
 
+                if (user.TwoFactorEnabled)
+                {
+                    // Send OTP
+                    await sendOtp(user.Email);
+
+                    string encryEmail = _encryptionHelper.Encrypt(user.Email);
+
+                    return new AuthReturn
+                    {
+                        success = true,
+                        message = "2FA required",
+                        isTwoFactorRequired = true,
+                        email = encryEmail
+                    };
+                }
+
                 string token = GenerateJwtToken(email, "User");
                 string refreshToken = GenerateRefreshToken();
 
@@ -416,5 +477,99 @@ namespace Backend.RepoHelper
                 throw;
             }
         }
+
+        public async Task<AuthReturn> EnableTwoFator(ClaimsPrincipal userPrincipal)
+        {
+            try
+            {
+                var email = userPrincipal.FindFirstValue(ClaimTypes.Email);
+                if (string.IsNullOrEmpty(email))
+                {
+                    return new AuthReturn { success = false, message = "Email not found in token" };
+                }
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user == null)
+                {
+                    return new AuthReturn {success = false,message = "User not found" };
+                }
+
+                var result = await _userManager.SetTwoFactorEnabledAsync(user, true);
+
+                if (result.Succeeded)
+                {
+                    return new AuthReturn {success = true, message = "Two-Factor Authentication enabled successfully!"};
+                }
+                else
+                {
+                    return new AuthReturn { success = false,message = "Failed to enable 2FA"};
+                }
+            }
+            catch (Exception ex)
+            {
+                return new AuthReturn {success = false, message = ex.Message };
+            }
+        }
+
+        public async Task<AuthReturn> sendOtp(string email)
+        {
+            try
+            {
+
+                if (string.IsNullOrWhiteSpace(email))
+                    return new AuthReturn { success = false, message = "Login First" };
+
+                var user = await _userManager.FindByEmailAsync(email);
+                if (user == null)
+                    return new AuthReturn { success = false, message = "User not found" };
+
+                var code = await _userManager.GenerateTwoFactorTokenAsync(user, "Email");
+
+                await _emailService.SendEmailAsync(user.Email, "2FA", $"Your code is {code}");
+
+                return new AuthReturn { success = true, message = "Two-Factor Authentication enabled successfully!" };
+            }
+            catch(Exception ex)
+            {
+                return new AuthReturn { success = true, message = "Two-Factor Authentication enabled successfully!" };
+            }
+        }
+        public async Task<AuthReturn> VerifyOtp(VerifyOtpRequestDto request , ClaimsPrincipal userPrincipal)
+        {
+            try
+            {
+               var email = userPrincipal.FindFirstValue(ClaimTypes.Email);
+
+                if(string.IsNullOrWhiteSpace(request.Email))
+                    return new AuthReturn { success = false, message = "Login First" };
+
+                request.Email = _encryptionHelper.Decrypt(request.Email);
+                var user = await _userManager.FindByEmailAsync(request.Email);
+
+                var isValid = await _userManager.VerifyTwoFactorTokenAsync(user, "Email", request.Otp);
+
+                if (!isValid)
+                    return new AuthReturn { success = false, message = "OTP is not Valid" };
+                var roles = await _userManager.GetRolesAsync(user);
+                var token = GenerateJwtToken(user.Email, roles.FirstOrDefault() ?? "User");
+
+                var refreshToken = GenerateRefreshToken();
+                user.RefreshToken = refreshToken;
+                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+                await _userManager.UpdateAsync(user);
+
+                return new AuthReturn
+                {
+                    success = true,
+                    message = "OTP verified successfully",
+                    token = token,
+                    refreshToken = refreshToken
+                };
+            } 
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error  VerifyOtp: " + ex.Message);
+                throw;
+            }
+        }
     }
- }
+}

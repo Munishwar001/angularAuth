@@ -15,7 +15,7 @@ declare const google: any;
   selector: 'app-login',
   imports: [LottieComponent, RouterLink, ReactiveFormsModule, CommonModule],
   templateUrl: './login.html',
-  styleUrls: ['./login.css']  // fixed typo
+  styleUrls: ['./login.css'] 
 })
 export class Login implements AfterViewInit {
 
@@ -51,13 +51,8 @@ export class Login implements AfterViewInit {
 
   private msalInitialized = false;
 
-//  async ngOnInit(){
-//      await this.msalInstance.initialize();
-//     this.msalInitialized = true;
-//   }
+  ngAfterViewInit(): void {
 
- ngAfterViewInit(): void{
-  
     this.loadGoogleScript().then(() => {
       this.client = google.accounts.id.initialize({
         client_id: '231552343195-eftj2qiksd8lol6njqrl5ctj9kvb44ej.apps.googleusercontent.com',
@@ -96,17 +91,17 @@ export class Login implements AfterViewInit {
     this.toastr.error(message, 'Error');
   }
 
- isMicrosoftLoginInProgress = false;
+  isMicrosoftLoginInProgress = false;
   async microsoftSignIn() {
     try {
-        if (this.isMicrosoftLoginInProgress) return;
+      if (this.isMicrosoftLoginInProgress) return;
       if (!this.msalInitialized) {
         await this.msalInstance.initialize();
         this.msalInitialized = true;
       }
 
       this.isMicrosoftLoginInProgress = true;
-  
+
       const loginResponse: AuthenticationResult = await this.msalInstance.loginPopup({
         scopes: ['user.read', 'email', 'openid', 'profile'],
         prompt: 'select_account'
@@ -118,6 +113,10 @@ export class Login implements AfterViewInit {
       this.authService.microsoftLogin({ idToken }).subscribe({
         next: (res: any) => {
           if (res.success) {
+            if (res.isTwoFactorRequired) {
+              this.router.navigate(['/otp-validation'], { queryParams: { xid: res.email } });
+              return;
+            }
             this.authService.saveToken(res.token, res.refreshToken);
             this.toastr.success(res.message, 'Success');
             this.router.navigate(['/']);
@@ -126,23 +125,23 @@ export class Login implements AfterViewInit {
           }
         },
         error: (err) => {
-           
+
           this.toastr.error(err.error.message || 'Login failed', 'Error');
         }
       });
 
     } catch (error: any) {
-    console.error('Microsoft login failed:', error);
-    if (error.errorCode === 'user_cancelled' || error.errorCode === 'popup_window_closed') {
-      this.toastr.info('Login popup was closed. Please try again.');
-    } else if (error.errorCode === 'interaction_in_progress') {
-      this.toastr.warning('Another login is in progress. Please wait.');
-    } else {
-      this.toastr.error('Microsoft sign-in failed', 'Error');
+      console.error('Microsoft login failed:', error);
+      if (error.errorCode === 'user_cancelled' || error.errorCode === 'popup_window_closed') {
+        this.toastr.info('Login popup was closed. Please try again.');
+      } else if (error.errorCode === 'interaction_in_progress') {
+        this.toastr.warning('Another login is in progress. Please wait.');
+      } else {
+        this.toastr.error('Microsoft sign-in failed', 'Error');
+      }
+    } finally {
+      this.isMicrosoftLoginInProgress = false;
     }
-  } finally {
-    this.isMicrosoftLoginInProgress = false;
-  }
   }
 
 
@@ -151,6 +150,10 @@ export class Login implements AfterViewInit {
       this.authService.login(this.loginForm.value).subscribe({
         next: (res: any) => {
           if (res.success) {
+            if (res.isTwoFactorRequired) {
+              this.router.navigate(['/otp-validation'], { queryParams: { xid: res.email } });
+              return;
+            }
             this.authService.saveToken(res.token, res.refreshToken);
             this.showSuccess(res.message);
             this.router.navigate(['/']);
@@ -181,6 +184,10 @@ export class Login implements AfterViewInit {
     this.authService.googleLogin({ idToken }).subscribe({
       next: (res: any) => {
         if (res.success) {
+          if (res.isTwoFactorRequired) {
+            this.router.navigate(['/otp-validation'], { queryParams: { xid: res.email } });
+            return;
+          }
           this.authService.saveToken(res.token, res.refreshToken);
           this.toastr.success(res.message, 'Success');
           this.router.navigate(['/']);
