@@ -110,10 +110,14 @@ export class AuthApi {
 
     const emailKey = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress";
     return decoded[emailKey] || null;
-  }  
+  }
 
   googleLogin(data: { idToken: string }) {
-  return this.http.post(`${this.baseUrl}/Auth/google-login`, data);
-}
+    return this.http.post(`${this.baseUrl}/Auth/google-login`, data);
+  }
+
+  microsoftLogin(data: { idToken: string }) {
+    return this.http.post(`${this.baseUrl}/Auth/microsoft-login`, data);
+  }
 
 }

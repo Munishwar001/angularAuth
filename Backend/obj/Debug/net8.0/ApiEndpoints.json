@@ -49,6 +49,22 @@
   },
   {
     "ContainingType": "Backend.Controllers.AuthController",
+    "Method": "MicrosoftLogin",
+    "RelativePath": "api/Auth/microsoft-login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "Backend.Model.AuthModel.MicrosoftLoginRequestDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "Backend.Controllers.AuthController",
     "Method": "Refresh",
     "RelativePath": "api/Auth/refresh",
     "HttpMethod": "POST",

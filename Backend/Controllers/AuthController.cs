@@ -147,5 +147,15 @@ namespace Backend.Controllers
             return Ok(result);
             
         }
+
+        [HttpPost("microsoft-login")]
+        public async Task<IActionResult> MicrosoftLogin([FromBody] MicrosoftLoginRequestDto request)
+        {
+
+            var result = await _authHelper.MicrosoftLogin(request);
+
+            return Ok(result);
+
+        }
     }
 }

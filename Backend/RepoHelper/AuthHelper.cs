@@ -17,10 +17,12 @@ using System.Text;
 using System.Web.Helpers;
 using System.Web.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Protocols;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 
 namespace Backend.RepoHelper
 {
-    public class AuthHelper 
+    public class AuthHelper
     {
         private string _connectionString;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -48,7 +50,7 @@ namespace Backend.RepoHelper
                 {
                     return null;
                 }
-                return new EmailExistDto {EmailExist = true ,Email = existingUser.Email , PasswordHash = existingUser.PasswordHash};
+                return new EmailExistDto { EmailExist = true, Email = existingUser.Email, PasswordHash = existingUser.PasswordHash };
             }
             catch (Exception ex)
             {
@@ -60,7 +62,7 @@ namespace Backend.RepoHelper
         {
             try
             {
-               
+
                 var existingUser = await EmailExistAsync(data.Email);
 
                 if (existingUser != null)
@@ -123,7 +125,7 @@ namespace Backend.RepoHelper
                 user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
                 await _userManager.UpdateAsync(user);
 
-                return new AuthReturn { success = true, message = "login successfully" , token = token , refreshToken = refreshToken};
+                return new AuthReturn { success = true, message = "login successfully", token = token, refreshToken = refreshToken };
             }
             catch (Exception ex)
             {
@@ -131,12 +133,12 @@ namespace Backend.RepoHelper
             }
         }
 
-        public string GenerateJwtToken(string email ,string role)
+        public string GenerateJwtToken(string email, string role)
         {
             var securityKey = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
 
-            var credentials = new SigningCredentials(securityKey,SecurityAlgorithms.HmacSha256);
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
             {
@@ -148,7 +150,7 @@ namespace Backend.RepoHelper
             var token = new JwtSecurityToken(
                 issuer: _configuration["Jwt:Issuer"],
                 audience: _configuration["Jwt:Audience"],
-                claims : claims ,
+                claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(Convert.ToDouble(_configuration["Jwt:ExpireMinutes"])),
                 signingCredentials: credentials
                 );
@@ -171,7 +173,7 @@ namespace Backend.RepoHelper
                 //Console.WriteLine(email);
                 if (string.IsNullOrEmpty(data.Email))
                 {
-                    return  new AuthReturn{ success = false, message = "Email i Required" };
+                    return new AuthReturn { success = false, message = "Email i Required" };
                 }
                 var user = await _userManager.FindByEmailAsync(data.Email);
                 if (user == null)
@@ -197,8 +199,8 @@ namespace Backend.RepoHelper
         public async Task<AuthReturn> ResetPasswordHelper(ResetPasswordDto dto)
         {
             try
-            {   
-                if(string.IsNullOrEmpty(dto.NewPassword) || string.IsNullOrEmpty(dto.ConfirmPassword))
+            {
+                if (string.IsNullOrEmpty(dto.NewPassword) || string.IsNullOrEmpty(dto.ConfirmPassword))
                 {
                     return new AuthReturn { success = false, message = "please fill the credential correctly" };
                 }
@@ -207,13 +209,13 @@ namespace Backend.RepoHelper
                     return new AuthReturn { success = false, message = "Pasword and ConfirmPassword are not same " };
                 }
                 var user = await _userManager.FindByEmailAsync(dto.Email);
-                if (user == null) return new  AuthReturn { success = false ,message = "User not found" };
+                if (user == null) return new AuthReturn { success = false, message = "User not found" };
 
                 var result = await _userManager.ResetPasswordAsync(user, dto.Token, dto.NewPassword);
                 if (!result.Succeeded)
                     return new AuthReturn { success = false, message = "Enable to reset Password" };
 
-                return new AuthReturn { success = true , message = "PasswordUpdated" };
+                return new AuthReturn { success = true, message = "PasswordUpdated" };
             }
             catch (Exception ex)
             {
@@ -230,7 +232,7 @@ namespace Backend.RepoHelper
 
                 var principal = GetPrincipalFromExpiredToken(tokenModel.AccessToken);
                 if (principal == null)
-                     return new AuthReturn { success = false, message = "Invalid access token" };
+                    return new AuthReturn { success = false, message = "Invalid access token" };
 
                 var email = principal.FindFirstValue(ClaimTypes.Email);
                 var user = await _userManager.FindByEmailAsync(email);
@@ -242,13 +244,13 @@ namespace Backend.RepoHelper
                     return new AuthReturn { success = false, message = "Invalid refresh token" };
                 }
                 var roles = await _userManager.GetRolesAsync(user);
-                var newAccessToken = GenerateJwtToken(user.Email , roles.FirstOrDefault() ?? "User");
+                var newAccessToken = GenerateJwtToken(user.Email, roles.FirstOrDefault() ?? "User");
                 var newRefreshToken = GenerateRefreshToken();
 
                 user.RefreshToken = newRefreshToken;
                 await _userManager.UpdateAsync(user);
 
-                return new AuthReturn { success = true, message = "Token Refreshed"  , token = newAccessToken , refreshToken = newRefreshToken};
+                return new AuthReturn { success = true, message = "Token Refreshed", token = newAccessToken, refreshToken = newRefreshToken };
 
             }
             catch (Exception ex)
@@ -286,7 +288,7 @@ namespace Backend.RepoHelper
             return null;
         }
 
-        public async  Task<AuthReturn> GoogleLogin(GoogleLoginRequestDto request)
+        public async Task<AuthReturn> GoogleLogin(GoogleLoginRequestDto request)
         {
             try
             {
@@ -299,12 +301,12 @@ namespace Backend.RepoHelper
 
                 if (payload == null)
                 {
-                    return new AuthReturn{ success = false, message = "Invalid Google token" };
+                    return new AuthReturn { success = false, message = "Invalid Google token" };
                 }
 
                 string email = payload.Email;
                 string name = payload.Name;
-                Console.WriteLine("The Email Which we get from the payload is => "+ email);
+                Console.WriteLine("The Email Which we get from the payload is => " + email);
                 Console.WriteLine(" And the Name is => " + name);
 
                 var user = await _userManager.Users
@@ -327,12 +329,12 @@ namespace Backend.RepoHelper
                 {
                     return new AuthReturn { success = false, message = "Enable to Update the User" };
                 }
-                return new AuthReturn { success = true, message = "Token Refreshed", token = token , refreshToken = refreshToken };
+                return new AuthReturn { success = true, message = "Token Refreshed", token = token, refreshToken = refreshToken };
             }
             catch (InvalidJwtException ex)
             {
                 Console.WriteLine("Invalid token: " + ex.Message);
-                throw ;
+                throw;
             }
             catch (Exception ex)
             {
@@ -340,5 +342,79 @@ namespace Backend.RepoHelper
                 throw;
             }
         }
+
+        public async Task<AuthReturn> MicrosoftLogin(MicrosoftLoginRequestDto request)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(request.IdToken))
+                {
+                    return new AuthReturn { success = false, message = "ID token is required" };
+                }
+
+                
+                string authority = $"https://login.microsoftonline.com/{_configuration["AzureAd:TenantId"]}/v2.0";
+                var configManager = new ConfigurationManager<OpenIdConnectConfiguration>(
+                    $"{authority}/.well-known/openid-configuration",
+                    new OpenIdConnectConfigurationRetriever()
+                );
+
+                var openIdConfig = await configManager.GetConfigurationAsync(CancellationToken.None);
+
+                var tokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = $"https://login.microsoftonline.com/{_configuration["AzureAd:TenantId"]}/v2.0",
+                    ValidateAudience = true,
+                    ValidAudience = _configuration["AzureAd:ClientId"],
+                    ValidateLifetime = true,
+                    IssuerSigningKeys = openIdConfig.SigningKeys
+                };
+
+                var handler = new JwtSecurityTokenHandler();
+                ClaimsPrincipal principal = handler.ValidateToken(request.IdToken, tokenValidationParameters, out SecurityToken validatedToken);
+
+                if (principal == null)
+                {
+                    return new AuthReturn { success = false, message = "Invalid Microsoft token" };
+                }
+
+                var email = principal.FindFirst(ClaimTypes.Email)?.Value ?? principal.FindFirst("preferred_username")?.Value;
+                var name = principal.FindFirst("name")?.Value ?? "MicrosoftUser";
+
+                var user = await _userManager.Users
+                    .Where(u => u.Email == email && !u.isDeleted)
+                    .FirstOrDefaultAsync();
+
+                if (user == null)
+                {
+                    return new AuthReturn { success = false, message = "Account Not found Please Register" };
+                }
+
+                string token = GenerateJwtToken(email, "User");
+                string refreshToken = GenerateRefreshToken();
+
+                user.RefreshToken = refreshToken;
+                user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+                var result = await _userManager.UpdateAsync(user);
+
+                if (!result.Succeeded)
+                {
+                    return new AuthReturn { success = false, message = "Unable to update user" };
+                }
+
+                return new AuthReturn { success = true, message = "Microsoft login successful", token = token, refreshToken = refreshToken };
+            }
+            catch (SecurityTokenValidationException ex)
+            {
+                Console.WriteLine("Invalid Microsoft token: " + ex.Message);
+                return new AuthReturn { success = false, message = "Invalid Microsoft token" };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error validating Microsoft token: " + ex.Message);
+                throw;
+            }
+        }
     }
-}
+ }
